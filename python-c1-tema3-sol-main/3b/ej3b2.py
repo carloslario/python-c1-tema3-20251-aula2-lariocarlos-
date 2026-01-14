@@ -87,7 +87,8 @@ def create_app():
     app = Flask(__name__)
     
     # Configuración de la base de datos SQLite en memoria
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///biblioteca.db'
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Inicializa la base de datos con la aplicación
@@ -126,6 +127,10 @@ def create_app():
         db.session.add(author)
         db.session.commit()
         return jsonify(author.to_dict()), 201
+    
+    @app.route('/', methods=['GET'])
+    def home():
+        return "API de Biblioteca funcionando ✅", 200
 
     @app.route('/authors/<int:author_id>', methods=['GET'])
     def get_author(author_id):
