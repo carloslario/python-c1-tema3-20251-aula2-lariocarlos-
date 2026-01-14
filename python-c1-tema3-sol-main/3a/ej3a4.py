@@ -24,7 +24,7 @@ from bson.objectid import ObjectId
 
 # Configuración de MongoDB (la debes obtener de "docker-compose.yml"):
 DB_NAME = "biblioteca"
-MONGODB_PORT = "27017:27017"
+MONGODB_PORT = 27017
 MONGODB_HOST = "localhost"
 MONGODB_USERNAME = "testuser"
 MONGODB_PASSWORD = "testpass"
@@ -331,7 +331,6 @@ def ejemplo_transaccion(db: pymongo.database.Database) -> bool:
         except:
             pass
         return False
-
 
 
 if __name__ == "__main__":

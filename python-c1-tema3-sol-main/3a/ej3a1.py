@@ -24,9 +24,7 @@ def crear_conexion():
     """
     Crea y devuelve una conexión a la base de datos SQLite
     """
-    # Implementa la creación de la conexión y retorna el objeto conexión
-    conexion = sqlite3.connect(DB_PATH)
-    return conexion
+    return sqlite3.connect(DB_PATH)
 
 def crear_tablas(conexion):
     """
@@ -35,25 +33,27 @@ def crear_tablas(conexion):
     - libros: id (entero, clave primaria), titulo (texto, no nulo),
               anio (entero), autor_id (entero, clave foránea a autores.id)
     """
-    # Implementa la creación de tablas usando SQL
     cursor = conexion.cursor()
 
-    cursor.execute("""
-            CREATE TABLE IF NOT EXISTS autores (
+    # Crear tabla autores
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS autores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre STRING NOT NULL
-                   )""")
-    
-    cursor.execute("""
-            CREATE TABLE IF NOT EXISTS libros (
+            nombre TEXT NOT NULL
+        )
+    ''')
+
+    # Crear tabla libros
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS libros (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             titulo TEXT NOT NULL,
             anio INTEGER,
-            autor_id INTEGER NOT NULL,
+            autor_id INTEGER,
             FOREIGN KEY (autor_id) REFERENCES autores(id)
-                   )""")
-    
-    # Usa conexion.cursor() para crear un cursor y ejecutar comandos SQL
+        )
+    ''')
+
     conexion.commit()
 
 def insertar_autores(conexion, autores):
@@ -61,7 +61,6 @@ def insertar_autores(conexion, autores):
     Inserta varios autores en la tabla 'autores'
     Parámetro autores: Lista de tuplas (nombre,)
     """
-    # Implementa la inserción de autores usando SQL INSERT
     cursor = conexion.cursor()
     cursor.executemany('INSERT INTO autores (nombre) VALUES (?)', autores)
     conexion.commit()
@@ -71,8 +70,6 @@ def insertar_libros(conexion, libros):
     Inserta varios libros en la tabla 'libros'
     Parámetro libros: Lista de tuplas (titulo, anio, autor_id)
     """
-    # Implementa la inserción de libros usando SQL INSERT
-    # Usa consultas parametrizadas para mayor seguridad
     cursor = conexion.cursor()
     cursor.executemany('INSERT INTO libros (titulo, anio, autor_id) VALUES (?, ?, ?)', libros)
     conexion.commit()
@@ -81,15 +78,14 @@ def consultar_libros(conexion):
     """
     Consulta todos los libros y muestra título, año y nombre del autor
     """
-    # Implementa una consulta SQL JOIN para obtener libros con sus autores
-    # Imprime los resultados formateados
     cursor = conexion.cursor()
-    cursor.execute("""
-        SELECT libros.titulo, autores.nombre, libros.anio
-        FROM libros
-        JOIN autores ON libros.autor_id = autores.id
-        """)
-    
+    cursor.execute('''
+        SELECT l.titulo, l.anio, a.nombre
+        FROM libros l
+        JOIN autores a ON l.autor_id = a.id
+        ORDER BY a.nombre, l.titulo
+    ''')
+
     for titulo, anio, autor in cursor.fetchall():
         print(f"{titulo} ({anio}) - {autor}")
 
@@ -97,24 +93,21 @@ def buscar_libros_por_autor(conexion, nombre_autor):
     """
     Busca libros por el nombre del autor
     """
-    # Implementa una consulta SQL con WHERE para filtrar por autor
-    # Retorna una lista de tuplas (titulo, anio)
     cursor = conexion.cursor()
-    cursor.execute("""
-        SELECT libros.titulo, autores.nombre
-        FROM libros
-        JOIN autores ON libros.autor_id = autores.id
-        WHERE autores.nombre = ?
-        """, (nombre_autor,))
-    
+    cursor.execute('''
+        SELECT l.titulo, l.anio
+        FROM libros l
+        JOIN autores a ON l.autor_id = a.id
+        WHERE a.nombre = ?
+        ORDER BY l.anio
+    ''', (nombre_autor,))
+
     return cursor.fetchall()
 
 def actualizar_libro(conexion, id_libro, nuevo_titulo=None, nuevo_anio=None):
     """
     Actualiza la información de un libro existente
     """
-    # Implementa la actualización usando SQL UPDATE
-    # Solo actualiza los campos que no son None
     if nuevo_titulo is None and nuevo_anio is None:
         return
 

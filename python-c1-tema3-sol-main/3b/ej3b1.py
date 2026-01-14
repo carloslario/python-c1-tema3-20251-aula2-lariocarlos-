@@ -13,7 +13,7 @@ Implementa un sistema simple de gestión de biblioteca utilizando SQLAlchemy par
 Este ejercicio se enfoca en SQLAlchemy Core y ORM sin depender de Flask u otro framework web.
 """
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table, inspect
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, joinedload
 
@@ -37,7 +37,7 @@ class Author(Base):
     # - Una relación con los libros (books) usando relationship
     __tablename__ = 'authors'
     id = Column(Integer, primary_key=True)
-    name = Column(String(80), nullable=False)
+    name = Column(String, nullable=False)
     books = relationship("Book", back_populates="author")
 
 
@@ -51,7 +51,7 @@ class Book(Base):
     # - Una relación con el autor usando relationship
     __tablename__ = 'books'
     id = Column(Integer, primary_key=True)
-    title = Column(String(80), nullable=False)
+    title = Column(String, nullable=False)
     year = Column(Integer, nullable=True)
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     author = relationship("Author", back_populates="books")
@@ -62,15 +62,11 @@ def setup_database():
     """Configura la base de datos y crea las tablas"""
     # Implementa la creación de tablas en la base de datos usando Base.metadata.create_all()
     Base.metadata.create_all(engine)
-    print("Tablas creadas")
 
 
 # Función para crear datos de ejemplo
 def create_sample_data(session):
     """Crea datos de ejemplo en la base de datos"""
-    # Crea al menos dos autores
-    # Crea al menos tres libros asociados a los autores
-    # Añade todos los objetos a la sesión y haz commit
     # Crea al menos dos autores
     author1 = Author(name="Gabriel García Márquez")
     author2 = Author(name="Isabel Allende")
@@ -94,13 +90,13 @@ def create_sample_data(session):
     session.commit()
 
 
-
 # Funciones para operaciones CRUD
 def create_book(session, title, author_name, year=None):
     """
     Crea un nuevo libro con su autor
     Si el autor ya existe, se utiliza el existente
     """
+    # Busca si ya existe un autor con ese nombre
     author = session.query(Author).filter_by(name=author_name).first()
     # Si no existe, crea un nuevo autor
     if not author:
@@ -134,11 +130,11 @@ def get_book_by_id(session, book_id):
 def update_book(session, book_id, new_title=None, new_year=None):
     """Actualiza la información de un libro existente"""
     # Busca el libro por ID
-    # Si existe, actualiza los campos que tienen nuevos valores
-    # Haz commit a la sesión
-    # Retorna el libro actualizado o None si no existe
     book = session.query(Book).filter_by(id=book_id).first()
     if book:
+        # Si existe, actualiza los campos que tienen nuevos valores
+        # Haz commit a la sesión
+        # Retorna el libro actualizado o None si no existe
         if new_title:
             book.title = new_title
         if new_year is not None:

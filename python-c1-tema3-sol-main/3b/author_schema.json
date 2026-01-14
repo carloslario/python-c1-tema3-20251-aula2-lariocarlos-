@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Author",
+    "description": "Schema for validating author data",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "The name of the author",
+            "minLength": 1,
+            "maxLength": 100
+        }
+    },
+    "required": ["name"],
+    "additionalProperties": false
+}
+

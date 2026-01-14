@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Book",
+    "description": "Schema for validating book data",
+    "type": "object",
+    "properties": {
+        "title": {
+            "type": "string",
+            "description": "The title of the book",
+            "minLength": 1,
+            "maxLength": 200
+        },
+        "author_id": {
+            "type": "integer",
+            "description": "The ID of the book's author",
+            "minimum": 1
+        },
+        "year": {
+            "type": "integer",
+            "description": "The publication year of the book",
+            "minimum": 1000,
+            "maximum": 9999
+        }
+    },
+    "required": ["title", "author_id"],
+    "additionalProperties": false
+}
+

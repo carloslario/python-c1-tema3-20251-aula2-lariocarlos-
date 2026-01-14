@@ -29,10 +29,16 @@ def conectar_bd() -> sqlite3.Connection:
     """
     # Implementa aquí la conexión a la base de datos:
     # 1. Verifica que el archivo de base de datos existe
+    if not os.path.exists(DB_PATH):
+        raise FileNotFoundError(f"La base de datos no existe en {DB_PATH}")
+
     # 2. Conecta a la base de datos
-    # 3. Configura la conexión para que devuelva las filas como diccionarios (opcional)
-    # 4. Retorna la conexión
     conexion = sqlite3.connect(DB_PATH)
+
+    # 3. Configura la conexión para que devuelva las filas como diccionarios (opcional)
+    conexion.row_factory = sqlite3.Row
+
+    # 4. Retorna la conexión
     return conexion
 
 def convertir_a_json(conexion: sqlite3.Connection) -> Dict[str, List[Dict[str, Any]]]:
@@ -48,34 +54,33 @@ def convertir_a_json(conexion: sqlite3.Connection) -> Dict[str, List[Dict[str, A
     """
     # Implementa aquí la conversión de datos a formato JSON:
     # 1. Crea un diccionario vacío para almacenar el resultado
-    # 2. Obtén la lista de tablas de la base de datos
-    # 3. Para cada tabla:
-    #    a. Ejecuta una consulta SELECT * FROM tabla
-    #    b. Obtén los nombres de las columnas
-    #    c. Convierte cada fila a un diccionario (clave: nombre columna, valor: valor celda)
-    #    d. Añade el diccionario a una lista para esa tabla
-    # 4. Retorna el diccionario completo con todas las tablas
-   # Implementa aquí la conversión de datos a formato JSON:
     resultado = {}
 
+    # 2. Obtén la lista de tablas de la base de datos
     cursor = conexion.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     tablas = cursor.fetchall()
 
+    # 3. Para cada tabla:
     for tabla in tablas:
         nombre_tabla = tabla[0]
+        # a. Ejecuta una consulta SELECT * FROM tabla
         cursor.execute(f"SELECT * FROM {nombre_tabla};")
 
+        # b. Obtén los nombres de las columnas
         columnas = [descripcion[0] for descripcion in cursor.description]
 
+        # c. Convierte cada fila a un diccionario (clave: nombre columna, valor: valor celda)
         resultado[nombre_tabla] = []
         for fila in cursor.fetchall():
+            # d. Añade el diccionario a una lista para esa tabla
             resultado[nombre_tabla].append({
                 columnas[i]: valor
                 for i, valor in enumerate(fila)
             })
-    return resultado
 
+    # 4. Retorna el diccionario completo con todas las tablas
+    return resultado
 
 def convertir_a_dataframes(conexion: sqlite3.Connection) -> Dict[str, pd.DataFrame]:
     """
@@ -90,13 +95,6 @@ def convertir_a_dataframes(conexion: sqlite3.Connection) -> Dict[str, pd.DataFra
     """
     # Implementa aquí la extracción de datos a DataFrames:
     # 1. Crea un diccionario vacío para los DataFrames
-    # 2. Obtén la lista de tablas de la base de datos
-    # 3. Para cada tabla, crea un DataFrame usando pd.read_sql_query
-    # 4. Añade consultas JOIN para relaciones importantes:
-    #    - Ventas con información de productos
-    #    - Ventas con información de vendedores
-    #    - Vendedores con regiones
-    # 5. Retorna el diccionario con todos los DataFrames
     dataframes = {}
 
     # 2. Obtén la lista de tablas de la base de datos
