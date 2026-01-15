@@ -1,8 +1,0 @@
-pytest
-Flask
-requests
-pymongo
-flask-sqlalchemy
-PyJWT
-pandas
-jsonschema
